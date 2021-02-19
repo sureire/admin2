@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "vplusu-4b649"
+  },
+  "targets": {
+    "vplusu-4b649": {
+      "hosting": {
+        "admin": [
+          "vplusadmin"
+        ]
+      }
+    }
+  }
+}
