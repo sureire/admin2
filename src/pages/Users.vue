@@ -1,7 +1,7 @@
 <template>
       <q-page class="q-pa-md">
     <q-table
-      title="Service Engineers"
+      title="Users"
       :data="services"
       :columns="columns"
       :filter="filter"      
@@ -15,56 +15,33 @@
                 </template>
             </q-input>
         </template>    
-      <template v-slot:header="props">
-        <q-tr :props="props">
-
-            <q-th key="active" :props="props">
-                Status
-            </q-th>  
-            <q-th key="name" :props="props">
-                Name
-            </q-th>  
-            <q-th key="mobile" :props="props">
-                Mobile
-            </q-th>  
-            <q-th key="email" :props="props">
-                Email
-            </q-th>  
-            <q-th key="walletbalance" :props="props">
-                Wallet Balance
-            </q-th>  
-        </q-tr>
-      </template>
-      <template v-slot:body="props">
-
-        <q-tr :props="props">
-            <q-td auto-width>
-                <q-toggle v-model="props.row.active === 1?true:false"  @input="onSelect(props.row)"  />
-            </q-td>            
-            <q-td key="name" :props="props">
-                {{ props.row.name }}
-            </q-td>  
-            <q-td key="mobile" :props="props">
-                {{ props.row.mobile }}
-            </q-td>  
-            <q-td key="email" :props="props">
-                {{ props.row.email }}
-            </q-td>  
-            <q-td key="walletbalance" :props="props">
-                ${{ props.row.walletbalance }}
-            </q-td>  
-
-        </q-tr>
-      </template>
+        <template v-slot:top-left>
+            <q-btn no-caps icon="add" label="New User" color="primary" @click="onAdd" />
+        </template>            
+        <template v-slot:body-cell-action="props">
+            <q-td :props="props">
+            <div>
+                <!-- <q-badge color="purple" :label="props.value"></q-badge> -->
+                <q-btn round icon="delete" color="red" @click.stop="onDelete(props.row)" dense flat/>
+            </div>
+            </q-td>
+        </template>
     </q-table>
+    <q-dialog v-model="showregister" persistent>
+        <register-user usertype="User" @closeRegisterDialog="onRefresh"/>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 export default {
+    components :{
+        'register-user' : require('components/Register.vue').default,
+    },
   data() {
     return {
         filter: '',        
+        showregister: false,
         isActive: true,
         initialPagination: {
             rowsPerPage: 10
@@ -83,7 +60,7 @@ export default {
         { name: 'name', label: 'Name', align: 'left', field: 'name', sortable: true },
         { name: 'mobile', label: 'Mobile', align: 'left',field: 'mobile' },
         { name: 'email', label: 'Email', align: 'left',field: 'email' },
-        { name: 'walletbalance', label: 'Balance',align: 'right', field: 'walletbalance' },
+        { name: 'action', label: 'Action',align: 'right', field: 'action' },
       ],
       services:[]
     }
@@ -111,17 +88,45 @@ export default {
           })
         })
 
+      },
+      onDelete(row){
+          this.$q.dialog({
+          title: 'Alert',
+          message: 'Are you sure want to delete ' + row.name + ' ?',
+            cancel: true,
+            persistent: true          
+            }).onOk(() => {
+                this.$http.delete(`${this.$store.state.hostname}/users/${row.mobile}`)
+                .then(response => {
+                    this.$q.notify('Deleted ' + row.name)
+                    let ci = this.services.findIndex(a => a.mobile === row.mobile)
+                    this.services.splice(ci,1)
+                })
+            })
+      },
+      onAdd(){
+            this.showregister = true
+      },
+      async onRefresh(){
+        this.showregister = false
+        console.log('calling onload')
+        this.onloadUsers()
+      },
+      async onloadUsers(){
+        try{
+            let res = await this.$http.get(this.$store.state.hostname + '/users')
+            //console.log('return from onloadusers ' + JSON.stringify(res.data))
+            this.services = res.data
+        }catch(err){
+            console.error(err)
+            throw err
+        }
+
       }
   },
     mounted() {
-    this.$http.get(this.$store.state.hostname + '/providers')
-    .then(response => {
-        console.log(response.data)
-        this.services = response.data
-    }).catch (err => {
-        throw err
-    })
-}    
+        this.onloadUsers()
+    }
 }
 </script>
 

@@ -73,6 +73,15 @@ export default {
                 this.$http.put(this.$store.state.hostname + '/provider', {id: row.engineerid, amount: newamount})
                 .then(res => {
                     this.$q.notify('Refunded the amount back to Engineer wallet')
+                    let value = {
+                        providerid: row.engineerid, 
+                        amount: newamount,
+                        transtype: 'refund'
+                    }
+                    this.$http.post(`${process.env.HOSTNAME}/wallet`,value)
+                    .then(res => {
+                        console.log("wallet transaction added...")
+                    })                     
                 })
           })
 

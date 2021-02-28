@@ -4,9 +4,17 @@
       title="Service Requests"
       :data="services"
       :columns="columns"
+      :filter="filter"
       row-key="id"
       :pagination="initialPagination"
     >
+        <template v-slot:top-right>
+            <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+                <template v-slot:append>
+                    <q-icon name="search" />
+                </template>
+            </q-input>
+        </template>
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th
@@ -64,6 +72,7 @@
 export default {
   data() {
     return {
+        filter: '',
         initialPagination: {
             rowsPerPage: 10
             // rowsNumber: xx if getting data from a server

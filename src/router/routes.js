@@ -10,7 +10,10 @@ const routes = [
       { path: '/newengineers', component: () => import('pages/NewEngineers.vue') },
       { path: '/services', component: () => import('pages/Services.vue') },
       { path: '/cancelledreq', component: () => import('pages/CancelledRequest.vue') },
+      // { path: '/cancelledreq', component: () => import('pages/samplegrouptable.vue') },
       { path: '/servicereqs', component: () => import('pages/SRequests.vue') },
+      { path: '/servicereport', component: () => import('pages/SRequest2.vue') },
+      { path: '/users', component: () => import('pages/Users.vue') },
     ]
   },
 

@@ -22,7 +22,7 @@
       show-if-above
       bordered
       content-class="bg-grey-1"
-
+      width=200
     >
       <q-list>
         <q-item-label
@@ -109,9 +109,14 @@ export default {
           link: '/#/category'
         },
         {
-          title: 'New Service Engineers',
-          icon: 'face',
+          title: 'Service Engineers',
+          icon: 'engineering',
           link: '/#/newengineers'
+        },
+        {
+          title: 'Users',
+          icon: 'face',
+          link: '/#/users'
         },
         {
           title: 'Services',
@@ -127,6 +132,11 @@ export default {
           title: 'Cancelled Services',
           icon: 'clear',
           link: '/#/cancelledreq'
+        },
+        {
+          title: 'Reports',
+          icon: 'insert_chart_outlined',
+          link: '/#/servicereport'
         }
         ]
     }
