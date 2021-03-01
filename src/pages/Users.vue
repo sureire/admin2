@@ -1,12 +1,20 @@
 <template>
-      <q-page class="q-pa-md">
+ <q-page class="q-pa-md">
+    <q-option-group
+      v-model="usertype"
+      :options="options"
+      color="primary"
+      inline
+      @input="onloadUsers"
+    />   
     <q-table
-      title="Users"
+      :title=showUserType
       :data="services"
       :columns="columns"
       :filter="filter"      
       row-key="id"
      :pagination="initialPagination"
+     :loading="loading"
     >
         <template v-slot:top-right>
             <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -14,10 +22,8 @@
                     <q-icon name="search" />
                 </template>
             </q-input>
+            <q-btn class="q-ml-lg" no-caps icon="add" :label="`New ${usertype}`"  color="primary" @click="onAdd" />            
         </template>    
-        <template v-slot:top-left>
-            <q-btn no-caps icon="add" label="New User" color="primary" @click="onAdd" />
-        </template>            
         <template v-slot:body-cell-action="props">
             <q-td :props="props">
             <div>
@@ -28,7 +34,7 @@
         </template>
     </q-table>
     <q-dialog v-model="showregister" persistent>
-        <register-user usertype="User" @closeRegisterDialog="onRefresh"/>
+        <register-user :usertype="usertype" @closeRegisterDialog="onRefresh"/>
     </q-dialog>
   </q-page>
 </template>
@@ -38,8 +44,15 @@ export default {
     components :{
         'register-user' : require('components/Register.vue').default,
     },
+    computed: {
+        showUserType(){
+            return this.usertype + 's'
+        }
+    },
   data() {
     return {
+        loading:false,
+        usertype: null,
         filter: '',        
         showregister: false,
         isActive: true,
@@ -62,7 +75,16 @@ export default {
         { name: 'email', label: 'Email', align: 'left',field: 'email' },
         { name: 'action', label: 'Action',align: 'right', field: 'action' },
       ],
-      services:[]
+      services:[],
+        options: [
+          {
+            label: 'Users',
+            value: 'User'
+          },
+          {
+            label: 'Dealers',
+            value: 'Dealer'
+          }]      
     }
   },
   methods:{
@@ -113,18 +135,29 @@ export default {
         this.onloadUsers()
       },
       async onloadUsers(){
+          this.loading=true
         try{
-            let res = await this.$http.get(this.$store.state.hostname + '/users')
-            //console.log('return from onloadusers ' + JSON.stringify(res.data))
-            this.services = res.data
+            if (this.usertype == 'User') {
+                let res = await this.$http.get(this.$store.state.hostname + '/users')
+                this.services = res.data
+            }
+            else if (this.usertype == 'Dealer') {
+                let res = await this.$http.get(this.$store.state.hostname + '/dealerlist')
+                this.services = res.data
+            }
         }catch(err){
             console.error(err)
             throw err
         }
-
+        this.loading=false
       }
   },
     mounted() {
+        console.log(' route is ' + this.$route.path)
+        if (this.$route.path == '/dealers')
+            this.usertype='Dealer'
+        else if (this.$route.path == '/users')
+            this.usertype='User'
         this.onloadUsers()
     }
 }

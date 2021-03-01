@@ -4,7 +4,7 @@
       title="Services"
       :data="services"
       :columns="columns"
-      row-key="mobile"
+      row-key="id"
       :filter="filter"         
       :pagination="initialPagination"
     >
@@ -29,6 +29,9 @@ export default {
             // rowsNumber: xx if getting data from a server
         },      
       columns: [
+        {
+          name: 'id', label: 'Id', field: 'id'
+        },
         {
           name: 'servicename',
           required: true,

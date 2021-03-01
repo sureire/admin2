@@ -18,8 +18,14 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    hostname: 'http://localhost:3000'
-    //hostname: 'https://nodejs-express-mysql.uc.r.appspot.com'
+    //hostname: 'http://localhost:3000',
+    hostname: 'https://nodejs-express-mysql.uc.r.appspot.com',
+    usertype: null
+  },
+  mutations :{
+    setUserType(state, type) {
+      state.usertype = type
+    }
   }
 
 })

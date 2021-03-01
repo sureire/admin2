@@ -114,7 +114,7 @@ export default {
           link: '/#/newengineers'
         },
         {
-          title: 'Users',
+          title: 'Users/Dealers',
           icon: 'face',
           link: '/#/users'
         },

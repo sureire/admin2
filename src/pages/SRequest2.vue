@@ -231,11 +231,5 @@ export default {
 </script>
 
 <style>
-tr:nth-child(even) {
-  background-color: #db8d3414 !important;
-}
-th {
-      background-color: #db56f538 !important;
 
- }
 </style>

@@ -15,54 +15,16 @@
                 </template>
             </q-input>
         </template>
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>    
-        <template v-slot:body="props">
-            <q-tr :props="props">
-                <q-td key="id" :props="props">
-                    {{ props.row.id }}
-                </q-td>  
-                <q-td key="name" :props="props">
-                    {{ props.row.name }}
-                </q-td>        
-                <q-td key="mobile" :props="props">
-                    {{ props.row.mobile }}
-                </q-td>        
-                <q-td key="category" :props="props">
-                    {{ props.row.category }}
-                </q-td>        
-                <q-td key="location" :props="props">
-                    {{ props.row.location }}
-                </q-td>        
-                <q-td key="requestdate" :props="props">
-                    {{ props.row.requestdate }}
-                </q-td>        
-                <q-td key="status" :props="props">
-                    <q-badge :color="props.row.color">
-                    {{ props.row.status }}
-                    </q-badge>
-                </q-td>
-                <q-td v-if="props.row.status ==='cancelled'">
-                    <q-btn size="sm" color="accent" label = "Reset" dense @click="onReset(props.row.id)" >              </q-btn>
-                </q-td>
-                <q-td  v-else>
-                    <q-btn size="sm" flat disable label = "Reset" dense >
-                    </q-btn>
-                </q-td>
-                <q-td key="Engineer" :props="props">
-                    {{ props.row.Engineer }}
-                </q-td>        
-            </q-tr>
-        </template>
+        <template v-slot:body-cell-status="props">
+            <q-td :props="props">
+            <div class="row">
+                <q-badge :color="props.row.color" :label="props.value"></q-badge>
+              <div v-if="props.value == 'cancelled'">
+                    <q-btn round icon="restart_alt" color="purple" @click.stop="onReset(props.row)" dense flat/>
+              </div>
+            </div>
+            </q-td>
+        </template>        
     </q-table>
 
   </q-page>
@@ -88,7 +50,7 @@ export default {
         { name: 'location', label: 'Location', field: 'location', sortable: true },
         { name: 'requestdate', align: 'left', label: 'RequestDate', field: 'requestdate' },
         { name: 'status', label: 'Status', field: 'status' , sortable: true },
-        { name: 'reset', label: 'Reset', field: 'reset' },
+        // { name: 'reset', label: 'Reset', field: 'reset' },
         { name: 'Engineer', label: 'Engineer Name', field: 'Engineer' },
         // { name: 'color', label: 'color', field: 'color', required:false }
       ],
