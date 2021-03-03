@@ -1,0 +1,191 @@
+<template>
+  <q-card style="width: 500px">
+    <q-chip size="18px" icon="bookmark" color="teal-2">
+        New Service Request 
+    </q-chip>
+    <div class="q-pa-lg">
+          <q-select  outlined bottom-slots v-model="newRequest.location" label="Location" :options="cities" >
+            <template v-slot:prepend>
+              <q-icon name="place" />
+            </template>
+          </q-select>
+          <q-select  outlined bottom-slots v-model="newRequest.category" :options="scategories" label="Services">
+            <template v-slot:prepend>
+              <q-icon name="construction" />
+            </template>
+          </q-select>        
+            <q-input  v-model="username" label="Name" />
+            <q-input  v-model="mobile" label="Mobile" 
+                lazy-rules :rules="[ val => val && val.length > 0 || 'Please enter a valid Mobile no.']"
+                    />
+                <q-input
+                v-model="address"
+                label="Address"
+                autogrow
+                />
+        <q-input  v-model="newRequest.requestdate" label="Requested Date" >
+        <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                <q-date v-model="newRequest.requestdate"  mask="DD-MM-YYYY" :options="optionsFn">
+                <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+                </q-date>
+            </q-popup-proxy>
+            </q-icon>
+        </template>
+        </q-input>
+        <q-input v-model="newRequest.description" label="Service Description" />
+        <q-select class="q-pt-md" v-model="newRequest.preferedtimeslot" :options="timeslot" label="Pick a TimeSlot" />
+        <q-toggle class="q-pt-md" v-model="newRequest.emergency" color="red" label="Emergency" />
+        <div class="row q-pt-xs">
+            <q-btn icon="cancel" label="Cancel" color="primary" v-close-popup/>
+            <q-space/>
+            <q-btn icon="add_alert" label="Create" color="primary" @click="onCreate"/>
+        </div>
+    </div>
+  </q-card>
+</template>
+
+<script>
+import { date } from 'quasar'
+
+export default {
+  
+    data() {
+        return {
+            cities: [],
+            scategories: [],
+            userid: null,
+            username: null,
+            mobile: null,
+            address: null,            
+            newRequest :{
+                userid: null,
+                category: null,
+                location: null,
+                requestdate: '',
+                status: 'pending',
+                preferedtimeslot: '',
+                emergency: false,
+                description: '',
+                createdby: null
+            },
+            timeslot :['Morning', 'Afternoon', 'Evening' ] 
+        }
+    },
+
+    methods: {
+        onOtpSuccess(){
+            this.enableotp= false
+            if (!this.userid) {
+                this.$http.get(`${process.env.HOSTNAME}/users/${this.mobile}`)
+                .then(response => {
+                    console.log(response.data)
+                    if (response.data){
+                        this.CreateRequest()
+                    }
+                })
+                .catch(err => {
+                        this.CreateNewUserandAddRequest()
+                })
+
+            }
+        },
+        onCreate(){
+             this.CreateNewUserandAddRequest()
+        },
+        CreateRequest(){
+            //duplicate check for service request
+            console.log(`${this.$store.state.hostname}/srequestdupcheck/${this.newRequest.userid}/${this.newRequest.location}/${this.newRequest.category}`)
+            this.$http.get(`${this.$store.state.hostname}/srequestdupcheck/${this.newRequest.userid}/${this.newRequest.location}/${this.newRequest.category}`)
+            .then(response => {
+                console.log('response is ' + JSON.stringify(response.data))
+                if (response.data.cnt > 0){
+                    this.$q.dialog({
+                        title: 'Alert',
+                        message: 'Service Request already added for this user please verify!!'
+                    }).onDismiss(()=>{
+                        return
+                    })
+                }
+                else {
+                    //add a service request
+                    this.newRequest.requestdate = date.formatDate(this.newRequest.requestdate,'YYYY/MM/DD')
+                    this.$http.post(this.$store.state.hostname + '/srequest', this.newRequest)
+                    .then(Response => {
+                        this.showNotify()
+                         this.$emit('closeServiceRequest')
+                    })
+                    .catch(err => {
+                        throw(err)
+                    })
+                }
+            })
+            .catch(err => {
+                console.error(err)
+            })
+        },
+        CreateNewUserandAddRequest(){
+            let newuser = {
+                name: this.username,
+                email:'',
+                mobile:this.mobile,
+                usertype:1,
+                address: this.address
+            }
+            //first check if the customer aleady exists
+            this.$http.get(`${this.$store.state.hostname}/users/${this.mobile}`)
+                .then(response => {  
+                    this.newRequest.userid = response.data.id
+                    this.CreateRequest()
+                 })
+                 .catch(err => {
+                    this.$http.post(`${this.$store.state.hostname}/user`, newuser)
+                    .then(Response => {
+                        this.newRequest.userid = Response.data.id
+                        this.CreateRequest()
+                    })
+                 })
+        },
+        showNotify(){
+                this.$q.notify({
+                    caption: 'Service Created',
+                    message: 'A new Service Request was created for ' + this.username,
+                    icon: 'announcement',
+                    timeout: 5000
+                })
+        },
+        optionsFn (date) {
+            var rightNow = new Date();
+            var res = rightNow.toISOString().slice(0,10).replace(/-/g,"-")
+            return date >= res
+            },            
+        
+    },
+    async mounted() {
+        try{
+               let res = await this.$http.get(this.$store.state.hostname + '/cities') 
+                res.data.forEach(e => this.cities.push(e.name))
+        }catch(e){
+            console.error(e)
+            throw(e)
+        }
+
+        try {
+            let res = await this.$http.get(this.$store.state.hostname + '/categories')
+            //this.scategories = res.data
+            res.data.forEach(e => this.scategories.push(e.name))
+        }catch(e){
+            console.error(e)
+            throw(e)
+        }
+    }
+
+}
+</script>
+
+<style>
+
+</style>

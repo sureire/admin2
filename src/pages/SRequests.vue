@@ -7,6 +7,7 @@
       :filter="filter"
       row-key="id"
       :pagination="initialPagination"
+      :loading="loading"
     >
         <template v-slot:top-right>
             <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
@@ -14,6 +15,7 @@
                     <q-icon name="search" />
                 </template>
             </q-input>
+            <q-btn class="q-ml-lg" no-caps icon="add" label="New Request"  color="primary" @click="onAdd" />                        
         </template>
         <template v-slot:body-cell-status="props">
             <q-td :props="props">
@@ -26,14 +28,21 @@
             </q-td>
         </template>        
     </q-table>
-
+    <q-dialog v-model="showregister" persistent>
+        <new-servicerequest  @closeServiceRequest="onRefresh"/>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 export default {
+    components :{
+        'new-servicerequest' : require('components/newservicereq.vue').default,
+    },  
   data() {
     return {
+        loading:false,
+        showregister: false,
         filter: '',
         initialPagination: {
             rowsPerPage: 10
@@ -58,6 +67,13 @@ export default {
     }
   },
   methods: {
+      onAdd(){
+          this.showregister = true
+      },
+      async onRefresh(){
+        this.showregister = false
+        this.onloadService()
+      },
       onReset(id){
         this.$q.dialog({
           title: 'Alert',
@@ -81,16 +97,20 @@ export default {
 
         })
         .onCancel(()=> {})
+      },
+      async onloadService(){
+        this.loading=true
+        try {
+          let res = await this.$http.get(this.$store.state.hostname + '/admin/servicelist')
+          this.services = res.data
+        }catch(e){
+          console.error(e)
+        }
+        this.loading=false
       }
   },
-  mounted() {
-    this.$http.get(this.$store.state.hostname + '/admin/servicelist')
-    .then(response => {
-        console.log(response.data)
-        this.services = response.data
-    }).catch (err => {
-        throw err
-    })      
+  async mounted() {
+      this.onloadService()
   }
 }
 </script>
