@@ -22,7 +22,7 @@
             <div class="row">
                 <q-badge :color="props.row.color" :label="props.value"></q-badge>
               <div v-if="props.value == 'cancelled'">
-                    <q-btn round icon="restart_alt" color="purple" @click.stop="onReset(props.row)" dense flat/>
+                    <q-btn round icon="restart_alt" color="purple" @click.stop="onReset(props.row.id)" dense flat/>
               </div>
             </div>
             </q-td>

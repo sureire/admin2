@@ -13,7 +13,7 @@
           <div class="text-h6">Password</div>
         </q-card-section>
         <q-card-section class="q-pt-none">
-          <q-input dense type="password" v-model="pwd"  />
+          <q-input dense type="password" v-model="pwd" @keyup.enter="onLogon" />
         </q-card-section>
 
         <q-card-actions align="center" >
@@ -35,12 +35,15 @@ export default {
         username: null,
         pwd:null,
         enabledialog:true,
-        failedlogin:false
+        failedlogin:false,
+        services:null
     }
   },
   methods :{
     onLogon(){
-      if (this.pwd === "123456") {
+      console.log(this.services.value)
+      this.failedlogin=false
+      if (this.pwd === this.services.value) {
           this.enabledialog = false
           this.failedlogin = false
           this.$router.push('/services')
@@ -53,8 +56,24 @@ export default {
         // })
         this.failedlogin = true
       }
-    }
-  }
+    },
+      async onloadSettings(){
+          this.loading=true
+        try{
+                let res = await this.$http.get(this.$store.state.hostname + '/settings')
+                this.$store.commit('setSettings',res.data)
+                this.services = res.data[0]
+        }catch(err){
+            console.error(err)
+            //throw err
+        }
+        this.loading=false
+      }
+  },
+  async mounted() {
+      console.log(' route is ' + this.$route.path)
+      this.onloadSettings()
+  }  
 }
 </script>
 

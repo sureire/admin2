@@ -2,29 +2,28 @@
   <q-page padding>
     <div class="row">
       <div class="col q-pa-sm" style="max-width: 200px">
-        <q-input filled v-model="fromdate" label="From Date" mask="date" :rules="['date']">
+        <q-input outlined v-model="fromdate" mask="##-##-####" label="From Date" @click="$refs.qDateProxyf.show()" clearable>
           <template v-slot:append>
-            <q-icon name="event" class="cursor-pointer">
-              <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                <q-date v-model="fromdate" >
-                  <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>                
+            <q-icon name="event" color="primary" class="cursor-pointer">
+              <q-popup-proxy ref="qDateProxyf" transition-show="scale" transition-hide="scale" >
+                <q-date v-model="fromdate"  mask="DD-MM-YYYY" @input="$refs.qDateProxyf.hide()">
                 </q-date>
               </q-popup-proxy>
             </q-icon>
           </template>
         </q-input>
       </div>
+
+      <!-- <q-datetime-picker outlined clearable class="col q-pa-sm" style="max-width: 200px" target="self" mode="date" label="From Date" v-model="fromdate" auto-update-value >
+      </q-datetime-picker> -->
+      <!-- <q-datetime-picker outlined clearable class="col q-pa-sm" style="max-width: 200px" target="self" mode="date" label="To Date" v-model="todate" auto-update-value >
+      </q-datetime-picker> -->
       <div class="col q-pa-sm" style="max-width: 200px">
-        <q-input filled v-model="todate"  label= "To Date" mask="date" :rules="['date']">
+        <q-input outlined v-model="todate"  label= "To Date" mask="##-##-####" @click="$refs.qDateProxy.show()" clearable>
           <template v-slot:append>
-            <q-icon name="event" class="cursor-pointer">
+            <q-icon name="event" class="cursor-pointer" color="primary">
               <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                <q-date v-model="todate" >
-                  <div class="row items-center justify-end">
-                      <q-btn v-close-popup label="Close" color="primary" flat />
-                  </div>                
+                <q-date v-model="todate" mask="DD-MM-YYYY"  @input="$refs.qDateProxy.hide()">
                 </q-date>
               </q-popup-proxy>
             </q-icon>
@@ -124,7 +123,7 @@ export default {
         { name: 'category', align: 'left', label: 'Service Type', field: 'category',sortable:true},        
         { name: 'requestdate', align: 'left', label: 'RequestDate', field: 'requestdate' },
         { name: 'status', label: 'Status', field: 'status' ,sortable:true },
-        { name: 'statusdate', label: 'Completed Date', field: 'statusdate' },
+        { name: 'statusdate', label: 'Status Date', field: 'statusdate' },
         { name: 'Engineer', label: 'Engineer Name', field: 'Engineer',sortable:true },
         // { name: 'color', label: 'color', field: 'color', required:false }
       ],
@@ -132,30 +131,6 @@ export default {
     }
   },
   methods: {
-      onReset(id){
-        this.$q.dialog({
-          title: 'Alert',
-          message: 'Do you want to change the status to pending?',
-            cancel: true,
-            persistent: true          
-        }).onOk(() => {
-            let cstatus = {
-                id: id, 
-                serviceprovider: null,
-                status:'pending:reset by admin'
-            }
-            console.log(cstatus)
-            this.$http.put(`${this.$store.state.hostname}/srequest/${id}`,cstatus)
-            .then(res => {
-                let ci = this.services.findIndex(a => a.id === id)
-                this.services[ci].status = 'pending'
-                this.services[ci].color = 'blue'
-                this.services[ci].Engineer = ''
-            })
-
-        })
-        .onCancel(()=> {})
-      },
       async onShow(){
               if (!this.fromdate || !this.todate)
               {
@@ -168,8 +143,12 @@ export default {
               }
             try {
               this.loading = true
+                let d = date.extractDate(this.fromdate,'DD-MM-YYYY')
+                let tfd = date.formatDate(d, 'YYYY-MM-DD')
+                d = date.extractDate(this.todate,'DD-MM-YYYY')
+                let ttd = date.formatDate(d, 'YYYY-MM-DD')
                let url = this.$store.state.hostname + '/servicereport'
-               url += `/${date.formatDate(this.fromdate,'YYYY-MM-DD')}/${date.formatDate(this.todate,'YYYY-MM-DD')}`
+               url += `/${tfd}/${ttd}`
                url += `/${this.status?this.status:'null'}`
                url += `/${this.city?this.city:'null'}`
                url += `/${this.dealer?this.dealer:'null'}`

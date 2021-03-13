@@ -12,9 +12,10 @@ const routes = [
       { path: '/cancelledreq', component: () => import('pages/CancelledRequest.vue') },
       // { path: '/cancelledreq', component: () => import('pages/samplegrouptable.vue') },
       { path: '/servicereqs', component: () => import('pages/SRequests.vue') },
-      { path: '/servicereport', component: () => import('pages/SRequest2.vue') },
+      { path: '/servicereport', component: () => import('src/pages/Reports.vue') },
       { path: '/users', component: () => import('pages/Users.vue') },
       { path: '/dealers', component: () => import('pages/Users.vue') },
+      { path: '/settings', component: () => import('pages/settings.vue') },
     ]
   },
 

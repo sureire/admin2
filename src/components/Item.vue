@@ -1,33 +1,14 @@
 <template>
-  <div>
-    <q-item>
-      <q-item-section avatar>
-          <q-avatar>
-            <img src="https://cdn.quasar.dev/img/boy-avatar.png">
-          </q-avatar>
-      </q-item-section>
-      <q-item-section>
-      <q-item-label>
-        {{task.name}}
-      </q-item-label>
-      <q-item-label caption>
-        {{task.mobile}}
-      </q-item-label>
-      </q-item-section>
-
-      <q-item-section side>
-          <q-btn
-            @click.stop="$emit('activate',task.id)"
+  <div class="row q-pa-md">
+      <q-input class="col" :label="task.key1"  v-model="task.value">
+      </q-input>
+          <q-btn align="right"
+            @click.stop="$emit('activate',task)"
             color="green"
-            icon="verified"
+            icon="check"
             flat
-            round
-            dense
           />
-      </q-item-section>
 
-    </q-item>
-     <q-separator/>
     </div>
 </template>
 

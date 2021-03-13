@@ -22,7 +22,6 @@
       show-if-above
       bordered
       content-class="bg-grey-1"
-      width=200
     >
       <q-list>
         <q-item-label
@@ -137,7 +136,12 @@ export default {
           title: 'Reports',
           icon: 'insert_chart_outlined',
           link: '/#/servicereport'
-        }
+        },
+        {
+          title: 'Settings',
+          icon: 'settings',
+          link: '/#/settings'
+        }        
         ]
     }
   },

@@ -23,14 +23,11 @@
                 label="Address"
                 autogrow
                 />
-        <q-input  v-model="newRequest.requestdate" label="Requested Date" >
+        <q-input  v-model="newRequest.requestdate" label="Requested Date" mask="##-##-####" @click="$refs.qDateProxy.show()" clearable>
         <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
             <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
-                <q-date v-model="newRequest.requestdate"  mask="DD-MM-YYYY" :options="optionsFn">
-                <div class="row items-center justify-end">
-                    <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
+                <q-date v-model="newRequest.requestdate"  mask="DD-MM-YYYY" :options="optionsFn" @input="$refs.qDateProxy.hide()">
                 </q-date>
             </q-popup-proxy>
             </q-icon>
@@ -65,7 +62,7 @@ export default {
                 userid: null,
                 category: null,
                 location: null,
-                requestdate: '',
+                requestdate: null,
                 status: 'pending',
                 preferedtimeslot: '',
                 emergency: false,
@@ -94,7 +91,23 @@ export default {
             }
         },
         onCreate(){
+            if(this.newRequest.requestdate &&
+                this.newRequest.category && 
+                this.newRequest.location && 
+                this.username &&
+                this.mobile){
+             
              this.CreateNewUserandAddRequest()
+            }
+            else {
+                    this.$q.dialog({
+                        title: 'Alert',
+                        message: 'Missing details please fill all the required fields'
+                    }).onDismiss(()=>{
+                        return
+                    })                
+            }
+             
         },
         CreateRequest(){
             //duplicate check for service request
@@ -112,7 +125,8 @@ export default {
                 }
                 else {
                     //add a service request
-                    this.newRequest.requestdate = date.formatDate(this.newRequest.requestdate,'YYYY/MM/DD')
+                    let d = date.extractDate(this.newRequest.requestdate,'DD-MM-YYYY')
+                    this.newRequest.requestdate = date.formatDate(d, 'YYYY-MM-DD')                    
                     this.$http.post(this.$store.state.hostname + '/srequest', this.newRequest)
                     .then(Response => {
                         this.showNotify()
@@ -157,10 +171,10 @@ export default {
                     timeout: 5000
                 })
         },
-        optionsFn (date) {
+        optionsFn (d) {
             var rightNow = new Date();
-            var res = rightNow.toISOString().slice(0,10).replace(/-/g,"-")
-            return date >= res
+            var res = date.formatDate(rightNow,'YYYY/MM/DD')
+            return d >= res
             },            
         
     },

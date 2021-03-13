@@ -58,20 +58,23 @@ export default {
   },
   methods:{
       onSelect(row){
+          this.loading=true
           let cstatus = {
               id: row.id, 
               serviceprovider: row.engineerid,
               status:'cancelled'
           }
+          sendCancelMsgtoCustomer(row)
           console.log(cstatus)
           this.$http.put(`${this.$store.state.hostname}/srequest/${row.id}`,cstatus)
           .then(response => {
               this.$q.notify('Status changed to cancelled successfully..')
-                let newamount = +row.walletbalance + 100
+              console.log('refund = ' + row.refund)
+              if (row.refund == '1'){
+                let newamount = +row.walletbalance + parseInt(this.$store.state.service_amt)
+                console.log('newamount = ' + newamount)
                 this.$http.put(this.$store.state.hostname + '/provider', {id: row.engineerid, amount: newamount})
                 .then(res => {
-                    console.log('refund = ' + row.refund)
-                    if (row.refund == '1'){
                       this.$q.notify('Refunded the amount back to Engineer wallet')
                       let value = {
                           providerid: row.engineerid, 
@@ -81,13 +84,17 @@ export default {
                       this.$http.post(`${this.$store.state.hostname}/wallet`,value)
                       .then(res => {
                           console.log("wallet transaction added...")
+                          console.log(row.walletbalance)
+                          this.onloadServices()                          
                       })                     
-                    }
                 })
+              }
+              else
+                this.loading=false
+
           })
 
-          console.log(row.walletbalance)
-          this.onloadServices()
+
       },
       onChecked(row){
         console.log(JSON.stringify(row))
@@ -102,6 +109,18 @@ export default {
         }).catch (err => {
             throw err
         })
+      },
+      async sendCancelMsgtoCustomer(row){
+
+         try {
+          let res = await this.$http.get(this.$store.state.hostname + '/srequest_byid/' + row.id)
+          
+            this.sendCancelMsg(row.CustomerName,res.data.mobile,row.id,row.CancelReason)
+
+         }catch(e){
+           console.error(e)
+           throw e
+         }
       }
   },
     mounted() {
