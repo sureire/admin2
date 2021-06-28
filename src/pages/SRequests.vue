@@ -15,7 +15,7 @@
                     <q-icon name="search" />
                 </template>
             </q-input>
-            <q-btn class="q-ml-lg" no-caps icon="add" label="New Request"  color="primary" @click="onAdd" />                        
+            <q-btn class="q-ml-lg" no-caps icon="add" label="New Request"  color="primary" @click="$router.push('/newservicereq')" />                        
         </template>
         <template v-slot:body-cell-status="props">
             <q-td :props="props">
@@ -28,9 +28,9 @@
             </q-td>
         </template>        
     </q-table>
-    <q-dialog v-model="showregister" persistent>
+    <!-- <q-dialog v-model="showregister" persistent>
         <new-servicerequest  @closeServiceRequest="onRefresh"/>
-    </q-dialog>
+    </q-dialog> -->
   </q-page>
 </template>
 
@@ -61,6 +61,8 @@ export default {
         { name: 'status', label: 'Status', field: 'status' , sortable: true },
         // { name: 'reset', label: 'Reset', field: 'reset' },
         { name: 'Engineer', label: 'Engineer Name', field: 'Engineer' },
+        {name: 'ratings', label:'Ratings', field: 'ratings'},
+        {name: 'feedback', label:'Feedback', field: 'feedback'}
         // { name: 'color', label: 'color', field: 'color', required:false }
       ],
       services:[]

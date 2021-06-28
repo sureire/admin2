@@ -54,11 +54,14 @@ export default {
     },
     mounted() {
         console.log(this.$store.state.hostname + '/cities')
+        this.$q.loading.show()
       this.$http.get(this.$store.state.hostname + '/cities')
         .then(response => {
             console.log(response.data)
           this.cities = response.data
+          this.$q.loading.hide()
         }).catch (err => {
+            this.$q.loading.hide()
           throw err
         })
     }

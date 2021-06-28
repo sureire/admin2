@@ -16,6 +16,7 @@ const routes = [
       { path: '/users', component: () => import('pages/Users.vue') },
       { path: '/dealers', component: () => import('pages/Users.vue') },
       { path: '/settings', component: () => import('pages/settings.vue') },
+      { path: '/newservicereq', component: () => import('components/newservicereq.vue') },
     ]
   },
 

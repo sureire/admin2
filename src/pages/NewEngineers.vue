@@ -51,7 +51,7 @@
                 {{ props.row.email }}
             </q-td>  
             <q-td key="walletbalance" :props="props">
-                ₹{{ props.row.walletbalance }}
+                ${{ props.row.walletbalance }}
             </q-td>  
 
         </q-tr>

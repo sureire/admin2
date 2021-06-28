@@ -64,15 +64,34 @@ export default {
               serviceprovider: row.engineerid,
               status:'cancelled'
           }
-          sendCancelMsgtoCustomer(row)
+          this.sendCancelMsgtoCustomer(row)
           console.log(cstatus)
+          console.log(row)
+          this.doRefund(row)
           this.$http.put(`${this.$store.state.hostname}/srequest/${row.id}`,cstatus)
           .then(response => {
-              this.$q.notify('Status changed to cancelled successfully..')
+             this.$q.notify('Status changed to cancelled successfully..')
+             this.onloadServices()
+             this.loading=false
+          })
+
+
+      },
+      async doRefund(row){
               console.log('refund = ' + row.refund)
               if (row.refund == '1'){
+                if (!this.$store.state.service_amt){
+                      let s = await this.$http.get(this.$store.state.hostname + '/settings')
+                      console.log(s)
+                      this.$store.commit('setSettings',s.data)
+                }
+                console.log('service amount is ' + this.$store.state.service_amt)
                 let newamount = +row.walletbalance + parseInt(this.$store.state.service_amt)
                 console.log('newamount = ' + newamount)
+                if (isNaN(newamount)){
+                  console.log("new amound is not a valid number, exiting...")
+                  return
+                }
                 this.$http.put(this.$store.state.hostname + '/provider', {id: row.engineerid, amount: newamount})
                 .then(res => {
                       this.$q.notify('Refunded the amount back to Engineer wallet')
@@ -85,15 +104,10 @@ export default {
                       .then(res => {
                           console.log("wallet transaction added...")
                           console.log(row.walletbalance)
-                          this.onloadServices()                          
+                                                   
                       })                     
                 })
               }
-              else
-                this.loading=false
-
-          })
-
 
       },
       onChecked(row){
@@ -114,8 +128,8 @@ export default {
 
          try {
           let res = await this.$http.get(this.$store.state.hostname + '/srequest_byid/' + row.id)
-          
-            this.sendCancelMsg(row.CustomerName,res.data.mobile,row.id,row.CancelReason)
+             console.log(res.data)
+            this.sendCancelMsg(row.CustomerName,res.data[0].mobile,row.id,row.CancelReason)
 
          }catch(e){
            console.error(e)

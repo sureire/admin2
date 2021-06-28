@@ -36,14 +36,14 @@ export default {
         pwd:null,
         enabledialog:true,
         failedlogin:false,
-        services:null
+        services:[]
     }
   },
   methods :{
     onLogon(){
-      console.log(this.services.value)
-      this.failedlogin=false
-      if (this.pwd === this.services.value) {
+      console.log(this.services[0].value)
+      this.failedlogin = false
+      if (this.pwd === this.services[0].value) {
           this.enabledialog = false
           this.failedlogin = false
           this.$router.push('/services')
@@ -62,7 +62,7 @@ export default {
         try{
                 let res = await this.$http.get(this.$store.state.hostname + '/settings')
                 this.$store.commit('setSettings',res.data)
-                this.services = res.data[0]
+                this.services = res.data
         }catch(err){
             console.error(err)
             //throw err

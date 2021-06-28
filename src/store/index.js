@@ -18,8 +18,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    hostname: 'http://localhost:3000',
-    //hostname: 'https://nodejs-express-mysql.uc.r.appspot.com',
+    //hostname: 'http://localhost:3000',
+    hostname: 'https://nodejs-express-mysql.uc.r.appspot.com',
     settings: [],
     service_amt: null
   },
@@ -29,8 +29,9 @@ export default new Vuex.Store({
     },
     setSettings(state, settings){
       state.settings = settings
-      let a = state.settings.filter(a => a.key1 == 'service_amount')
+      let a = state.settings.filter(a => a.key1 === 'service_amount ₹')
       state.service_amt = a[0].value
+      console.log(state.service_amt)
     }
   }
 

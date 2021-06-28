@@ -4,7 +4,7 @@
         New Service Request 
     </q-chip>
     <div class="q-pa-lg">
-          <q-select  outlined bottom-slots v-model="newRequest.location" label="Location" :options="cities" >
+          <q-select  outlined bottom-slots v-model="newRequest.location" label="Location" :options="cities" @input="onCitySelect" >
             <template v-slot:prepend>
               <q-icon name="place" />
             </template>
@@ -23,7 +23,7 @@
                 label="Address"
                 autogrow
                 />
-        <q-input  v-model="newRequest.requestdate" label="Requested Date" mask="##-##-####" @click="$refs.qDateProxy.show()" clearable>
+        <q-input  v-model="newRequest.requestdate" label="Requested Date" @click="$refs.qDateProxy.show()" clearable>
         <template v-slot:append>
             <q-icon name="event" class="cursor-pointer">
             <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
@@ -37,7 +37,7 @@
         <q-select class="q-pt-md" v-model="newRequest.preferedtimeslot" :options="timeslot" label="Pick a TimeSlot" />
         <q-toggle class="q-pt-md" v-model="newRequest.emergency" color="red" label="Emergency" />
         <div class="row q-pt-xs">
-            <q-btn icon="cancel" label="Cancel" color="primary" v-close-popup/>
+            <q-btn icon="cancel" label="Cancel" color="primary" @click="$router.push('/servicereqs')"/>
             <q-space/>
             <q-btn icon="add_alert" label="Create" color="primary" @click="onCreate"/>
         </div>
@@ -126,11 +126,13 @@ export default {
                 else {
                     //add a service request
                     let d = date.extractDate(this.newRequest.requestdate,'DD-MM-YYYY')
-                    this.newRequest.requestdate = date.formatDate(d, 'YYYY-MM-DD')                    
+                    this.newRequest.requestdate = date.formatDate(d, 'YYYY-MM-DD')      
+                                  
                     this.$http.post(this.$store.state.hostname + '/srequest', this.newRequest)
                     .then(Response => {
                         this.showNotify()
-                         this.$emit('closeServiceRequest')
+                         //this.$emit('closeServiceRequest')
+                         this.$router.push('/servicereqs')
                     })
                     .catch(err => {
                         throw(err)
@@ -175,26 +177,38 @@ export default {
             var rightNow = new Date();
             var res = date.formatDate(rightNow,'YYYY/MM/DD')
             return d >= res
-            },            
+            },   
+        async onCitySelect(){
+            console.log("from city change")
+            try {
+                let res = await this.$http.get(this.$store.state.hostname + '/serlocation/' + this.newRequest.location)
+                this.scategories = []
+                this.newRequest.category = null
+                res.data.forEach(e => this.scategories.push(e.category))
+            }catch(e){
+                console.error(e)
+            }
+        }         
         
     },
     async mounted() {
         try{
                let res = await this.$http.get(this.$store.state.hostname + '/cities') 
+               
                 res.data.forEach(e => this.cities.push(e.name))
         }catch(e){
             console.error(e)
             throw(e)
         }
 
-        try {
-            let res = await this.$http.get(this.$store.state.hostname + '/categories')
-            //this.scategories = res.data
-            res.data.forEach(e => this.scategories.push(e.name))
-        }catch(e){
-            console.error(e)
-            throw(e)
-        }
+        // try {
+        //     let res = await this.$http.get(this.$store.state.hostname + '/categories')
+        //     //this.scategories = res.data
+        //     res.data.forEach(e => this.scategories.push(e.name))
+        // }catch(e){
+        //     console.error(e)
+        //     throw(e)
+        // }
     }
 
 }
