@@ -72,6 +72,7 @@ export default {
         },
         { name: 'name', label: 'Name', align: 'left', field: 'name', sortable: true },
         { name: 'mobile', label: 'Mobile', align: 'left',field: 'mobile' },
+        { name: 'address', label: 'Address', align: 'left',field: 'address' },
         { name: 'email', label: 'Email', align: 'left',field: 'email' },
         { name: 'action', label: 'Action',align: 'right', field: 'action' },
       ],

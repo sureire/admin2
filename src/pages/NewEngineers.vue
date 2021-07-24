@@ -30,6 +30,9 @@
             <q-th key="email" :props="props">
                 Email
             </q-th>  
+            <q-th key="address" :props="props">
+                Address
+            </q-th>  
             <q-th key="walletbalance" :props="props">
                 Wallet Balance
             </q-th>  
@@ -50,10 +53,21 @@
             <q-td key="email" :props="props">
                 {{ props.row.email }}
             </q-td>  
-            <q-td key="walletbalance" :props="props">
-                ${{ props.row.walletbalance }}
+            <q-td key="address" :props="props">
+                {{ props.row.address }}
             </q-td>  
-
+            <q-td class="cursor-pointer" key="walletbalance" :props="props">
+                ${{ props.row.walletbalance }}
+                <q-popup-edit v-model="props.row.walletbalance" @save="(val, initialValue) => onEdit(initialValue, props.row)" buttons>
+                          <q-input
+                            autofocus
+                            dense
+                            v-model="props.row.walletbalance"
+                            hint="Edit Wallet balance"
+                            type="number"
+                          />
+                </q-popup-edit>                
+            </q-td>  
         </q-tr>
       </template>
     </q-table>
@@ -62,7 +76,7 @@
 
 <script>
 export default {
-  data() {
+  data: () => {
     return {
         filter: '',        
         isActive: true,
@@ -83,12 +97,33 @@ export default {
         { name: 'name', label: 'Name', align: 'left', field: 'name', sortable: true },
         { name: 'mobile', label: 'Mobile', align: 'left',field: 'mobile' },
         { name: 'email', label: 'Email', align: 'left',field: 'email' },
+        { name: 'address', label: 'Address', align: 'left',field: 'address' },
         { name: 'walletbalance', label: 'Balance',align: 'right', field: 'walletbalance' },
       ],
       services:[]
     }
   },
   methods:{
+      onEdit(oldamt, row){
+          console.log('Rowid: ' + JSON.stringify(row))
+          console.log('Old amount is ' + oldamt)
+          const newamt = parseInt(row.walletbalance) - oldamt
+          console.log('New Amount is ' + newamt)
+            let value = {
+                providerid: row.id, 
+                amount: newamt,
+                transtype: 'admin-add'
+            }
+            this.$http.post(`${this.$store.state.hostname}/wallet`,value)
+            .then(res => {
+                console.log("wallet transaction added...")
+            })
+            this.$http.put(this.$store.state.hostname + '/provider', {id: row.id, amount: parseInt(row.walletbalance)})
+            .then(res=>{
+                this.$q.notify('Wallet updated for Engineer ' + row.name + ' with amount $' + parseInt(row.walletbalance))
+            })
+
+      },
       onSelect(row){
           console.log('Rowid: ' + JSON.stringify(row))
           let msg ='Do you want to Activate ' + row.name + ' ?' 
@@ -121,7 +156,7 @@ export default {
     }).catch (err => {
         throw err
     })
-}    
+  }    
 }
 </script>
 
